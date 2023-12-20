@@ -5,7 +5,7 @@ import os
 
 
 # Open the PDF file
-pdf_path = r'C:\Users\il_ka\Main\Documents\Learning\BIOL\Awatramani\Papers\WAC\Kim and Kerchensteiner 2017 W3 OMS.pdf'
+pdf_path = r'C:\Users\il_ka\Main\Documents\Learning\BIOL\Awatramani\Papers\WAC\Bruggen 2014. Type 2 wide-field amacrine cells in TH-GFP mice show a homogenous synapse distribution and contact small ganglion cells.pdf'
 
 # Function to extract text from PDF and search for figure descriptions
 def extract_figure_descriptions(pdf_path):
@@ -41,12 +41,14 @@ def extract_figure_descriptions(pdf_path):
 
 # Extract figure descriptions
 # Loop through each file in the directory
-folder_path = r'C:\Users\il_ka\Main\Documents\Learning\BIOL\Awatramani\Papers\WAC'
-papers = {}
-for filename in os.listdir(folder_path):
-    # Check if the file is a PDF
-    if filename.endswith('.pdf'):
-        # Full path to the file
-        file_path = os.path.join(folder_path, filename)
-        figure_descriptions, page_texts = extract_figure_descriptions(file_path)
-        papers[filename] = figure_descriptions
+# folder_path = r'C:\Users\il_ka\Main\Documents\Learning\BIOL\Awatramani\Papers\WAC'
+# papers = {}
+# for filename in os.listdir(folder_path):
+#     # Check if the file is a PDF
+#     if filename.endswith('.pdf'):
+#         # Full path to the file
+#         file_path = os.path.join(folder_path, filename)
+#         figure_descriptions, page_texts = extract_figure_descriptions(file_path)
+#         papers[filename] = figure_descriptions
+
+figure_descriptions, page_texts = extract_figure_descriptions(pdf_path)
