@@ -91,6 +91,46 @@ def extract_figure_descriptions(pdf_path):
 
     return descriptions, line_texts
 
+def extract_pannel_description(figure_description):
+    """
+    Separates a figure description string into panels and stores them in a dictionary.
+    Panel identifiers can have different formats. the function has to work with all
+    forms.
+    Examples:
+        - A: Text
+        - A. Text
+        - a: Text
+        - a. Text
+        - a Text
+        - (A) Text
+        - Text (A)
+
+    Args:
+    figure_description (str): The full description of the figure including all panels.
+
+    Returns:
+    dict: A dictionary with keys as panel labels and values as panel descriptions.
+    """
+    import re
+
+    # Split the description by panel identifiers (e.g., "(A)", "(B)", "(C)", etc.)
+    # Using regex to match patterns like (A), (B), etc. with lookahead and lookbehind to ensure capturing parentheses without including them
+    panels = re.split(r'(?<=\))\s*(?=\([A-Z]\))', figure_description)
+
+    # Remove empty strings and strip whitespace
+    panels = [panel.strip() for panel in panels if panel.strip()]
+
+    # Extracting panel labels
+    panel_labels = re.findall(r'\([A-Z]\)', figure_description)
+    # Removing parentheses from labels
+    panel_labels = [label.strip("()").lower() for label in panel_labels]
+
+    # Creating dictionary with panel labels
+    panel_dict = {label: desc for label, desc in zip(panel_labels, panels)}
+
+    return panel_dict
+
+
 # Extract figure descriptions
 # pdf_path = r'C:\Users\il_ka\Main\Documents\Learning\BIOL\Awatramani\Papers\WAC\Bruggen 2014. Type 2 wide-field amacrine cells in TH-GFP mice show a homogenous synapse distribution and contact small ganglion cells.pdf'
 # pdf_path = r'C:\Users\il_ka\Main\Documents\Learning\BIOL\Awatramani\Papers\WAC\Gollisch 2009 Eyes Smarter than Scientists Believed Neural Computations in Circuits of the Retina.pdf'

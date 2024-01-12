@@ -2,7 +2,7 @@ import fitz  # PyMuPDF
 from collections import defaultdict
 import numpy as np
 
-def analyze_pdf_fonts(file_path):
+def get_most_common_font(file_path):
     # Open the PDF file
     doc = fitz.open(file_path)
 
@@ -25,7 +25,7 @@ def analyze_pdf_fonts(file_path):
                     for span in line["spans"]:  # iterate through text spans
                         if "size" in span and "font" in span:
                             # Font identifier includes font name, size (rounded to nearest half), and boldness
-                            font_id = (span["font"], round_half(span["size"]), "bold" in span["font"].lower())
+                            font_id = (span["font"], span["size"], span["color"], span["flags"])
                             # Append text to the corresponding font category
                             font_data[font_id] += span["text"]
                             # Update total character count
@@ -34,10 +34,21 @@ def analyze_pdf_fonts(file_path):
     # Close the document
     doc.close()
 
+    if len(font_data) == 0:
+        raise Exception(f"Python could not identify text in this PDF: {file_path}")
+
     # Calculate the percentage of text in each font category
     font_percentages = {font: len(text) / total_chars * 100 for font, text in font_data.items()}
 
-    return font_percentages
+    percentages = list(font_percentages.values())
+    max_percent = np.max(percentages)
+    max_percent_index = percentages.index(max_percent)
+    prevalent_font = list(font_percentages.keys())[max_percent_index]
+
+    prevalent_font = {"font": prevalent_font[0], "size": prevalent_font[1], "color": prevalent_font[2], "flags": prevalent_font[3]}
+
+    return prevalent_font
+
 
 def get_line_prevalent_font(line):
     # Dictionary to hold text grouped by font characteristics
@@ -49,7 +60,7 @@ def get_line_prevalent_font(line):
     for span in line["spans"]:  # iterate through text spans
         if "size" in span and "font" in span:
             # Font identifier includes font name, size (rounded to nearest half), and boldness
-            font_id = (span["font"], (span["size"]), "bold" in span["font"].lower())
+            font_id = (span["font"], span["size"], span["color"], span["flags"])
             # Append text to the corresponding font category
             font_data[font_id] += span["text"]
             # Update total character count
@@ -58,25 +69,14 @@ def get_line_prevalent_font(line):
     # Calculate the percentage of text in each font category
     font_percentages = {font: len(text) / total_chars * 100 for font, text in font_data.items()}
 
-    # Determine the highest percentage
     percentages = list(font_percentages.values())
     max_percent = np.max(percentages)
     max_percent_index = percentages.index(max_percent)
     prevalent_font = list(font_percentages.keys())[max_percent_index]
 
+    prevalent_font = {"font": prevalent_font[0], "size": prevalent_font[1], "color": prevalent_font[2], "flags": prevalent_font[3]}
+
     return prevalent_font
-
-def find_body_font(file_path):
-    font_percentages = analyze_pdf_fonts(file_path)
-
-    # Determine the highest percentage - likely to be main text body
-    percentages = list(font_percentages.values())
-    max_percent = np.max(percentages)
-    max_percent_index = percentages.index(max_percent)
-    most_common_font = list(font_percentages.keys())[max_percent_index]
-
-    return most_common_font
-
 
 
 def get_text_font(file_path, search_text):
