@@ -133,15 +133,65 @@ def find_text_by_font(file_path, font_info):
         for block in text_info["blocks"]:
             if "lines" in block:
                 for line in block["lines"]:
+                    line_font = get_line_prevalent_font(line)
                     line_acc = ''
-                    for span in line["spans"]:
-                        if ((span["font"] == font_info["font"] or span["font"] == f'{font_info["font"]}+fb') and
-                                span["size"] == font_info["size"] and
-                                span["color"] == font_info["color"] and
-                                span["flags"] == font_info["flags"]):
+                    if font_info == line_font:
+                        for span in line["spans"]:
                             line_acc = line_acc + span["text"]
-                    if line_acc != '':
                         matching_texts.append(line_acc)
+
+    doc.close()
+    return matching_texts
+
+
+
+def find_lines_by_font(file_path, font_info):
+    """
+    Finds all text in the PDF that matches the given font information.
+
+    :param file_path: Path to the PDF file
+    :param font_info: Dictionary with font information (font, size, color, flags)
+    :return: List of text strings that match the font information
+    """
+    if font_info == None:
+        return 'sample text not found'
+    doc = fitz.open(file_path)
+    matching_texts = []
+
+    for page in doc:
+        text_info = page.get_text("dict")
+
+        for block in text_info["blocks"]:
+            if "lines" in block:
+                for line in block["lines"]:
+                    line_font = get_line_prevalent_font(line)
+                    if font_info == line_font:
+                        matching_texts.append(line)
+
+    doc.close()
+    return matching_texts
+
+def find_blocks_by_font(file_path, font_info):
+    """
+    Finds all text in the PDF that matches the given font information.
+
+    :param file_path: Path to the PDF file
+    :param font_info: Dictionary with font information (font, size, color, flags)
+    :return: List of text strings that match the font information
+    """
+    if font_info == None:
+        return 'sample text not found'
+    doc = fitz.open(file_path)
+    matching_texts = []
+
+    for page in doc:
+        text_info = page.get_text("dict")
+
+        for block in text_info["blocks"]:
+            if "lines" in block:
+                line_font = get_line_prevalent_font(line)
+                if font_info == line_font:
+                    matching_texts.append(line)
 
     doc.close()
     return matching_texts
